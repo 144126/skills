@@ -153,3 +153,16 @@ npx skills add 144126/skills@design-ideation-engine
 ```
 
 The thinking phase, before any code: a seven-step creative process for generating award-level design concepts, drawn from Glaser, Scher, Carson and Sagmeister interviews, Awwwards case studies and IDEO methodology. Acts as a creative director rather than an implementer — pair it with premium-web-design, which builds what it decides.
+
+---
+
+## Configuration
+
+The research skills (`dre`, `deep-research-prompt-engineer`, `logo-prompt-designer`, `flyer-prompt-designer`) read two optional environment variables:
+
+| variable | default | what it is |
+|---|---|---|
+| `RESEARCH_DIR` | `~/research` | where reports are written and read back from |
+| `RESEARCH_QUEUE` | `~/research/queue.md` | plain list of topics, one per line, for unattended research runs |
+
+Neither needs setting to use the skills — the defaults work.
