@@ -129,3 +129,27 @@ npx skills add 144126/skills@wydsc
 ```
 
 Triggered by `wydsc`. One-line answers for Waydroid keyboard shortcuts — no explanation, no preamble, just the key combo and what it does.
+
+## compare-models
+
+```bash
+npx skills add 144126/skills@compare-models
+```
+
+Compare two or more AI models on benchmark scores. Separates the benchmarks they share from the ones only one of them reports, so a comparison can't quietly cherry-pick. Triggers on "compare X vs Y", "benchmark scores for", "which is better".
+
+## premium-web-design
+
+```bash
+npx skills add 144126/skills@premium-web-design
+```
+
+Build sites with award-tier craft — concept-driven direction, editorial typography, choreographed motion, custom scroll feel. Use it when a page has to feel premium, expensive, cinematic, or simply not like a template, and when an existing design looks generic, default, or AI-generated and needs lifting to studio quality.
+
+## design-ideation-engine
+
+```bash
+npx skills add 144126/skills@design-ideation-engine
+```
+
+The thinking phase, before any code: a seven-step creative process for generating award-level design concepts, drawn from Glaser, Scher, Carson and Sagmeister interviews, Awwwards case studies and IDEO methodology. Acts as a creative director rather than an implementer — pair it with premium-web-design, which builds what it decides.
