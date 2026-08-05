@@ -25,3 +25,43 @@ You write the plan and every test in it. A small, cheap, unattended model — de
 Needs Node 22.6+ and nothing else — `bin/plan.ts` is one dependency-free file.
 
 Full docs in [`skills/plan/SKILL.md`](skills/plan/SKILL.md).
+
+## atomic-task-graph
+
+```bash
+npx skills add 144126/skills@atomic-task-graph
+```
+
+A long-horizon task as a graph, not a list: recursive interface-preserving decomposition, a pre-execution thought experiment, dependency-aware parallel execution, and minimal-subgraph repair that freezes validated work instead of replanning from scratch. Graphs are plain text you can read, diff and commit. Implements [arXiv 2607.01942](https://arxiv.org/abs/2607.01942).
+
+## bible-search
+
+```bash
+npx skills add 144126/skills@bible-search
+```
+
+Semantic search over the Bible (Young's Literal Translation) against a live API backed by a state-of-the-art embedding model. Finds a passage by what it means, not by remembering the reference.
+
+## deepbibleresearch
+
+```bash
+npx skills add 144126/skills@deepbibleresearch
+```
+
+Triggered by `dbr`. Loops on a question — searching, reading, re-searching from new angles — until it reaches an exact, unambiguous answer or has the evidence to synthesise one. For "prove that…", "find every place where…", "does scripture support…".
+
+## digital-root
+
+```bash
+npx skills add 144126/skills@digital-root
+```
+
+Triggered by `ndr`. Maps each letter to its alphabet position, adds any digits, reduces to one digit.
+
+## speak-doc
+
+```bash
+npx skills add 144126/skills@speak-doc
+```
+
+Compress a body of text into statements of fact and read it aloud with Gemini TTS. Saves the audio, Ctrl+S stops playback.
