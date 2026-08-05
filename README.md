@@ -65,3 +65,67 @@ npx skills add 144126/skills@speak-doc
 ```
 
 Compress a body of text into statements of fact and read it aloud with Gemini TTS. Saves the audio, Ctrl+S stops playback.
+
+## condense
+
+```bash
+npx skills add 144126/skills@condense
+```
+
+Turns one block of text or a file into quote-anchored facts — no web, no search. Every claim carries a verbatim quote from the source; numbers and negation are checked against that quote, and anything that can't be matched lands in a Rejected section instead of the output. For merging live web results into an audited ledger, see `condense-search`.
+
+## condense-search
+
+```bash
+npx skills add 144126/skills@condense-search
+```
+
+Triggered by `cnd`. Turns a web search into an audited claim ledger instead of a summary: search, fetch live pages through Firecrawl, extract quote-anchored claims per page, then grade each one — corroborated, single-source, contested, vendor-only, or unchecked. No claim is ever marked "settled." Needs a Firecrawl key at `~/.agents/secrets/firecrawl.env`.
+
+## deep-research-prompt-engineer
+
+```bash
+npx skills add 144126/skills@deep-research-prompt-engineer
+```
+
+Triggered by `drpe`. Sits in front of a deep-research skill and turns a vague topic into a hyper-detailed research prompt — 13 required dimensions, source-type and citation requirements, contrarian and gap-finding instructions — before invoking research with it. Can also pull its own topic queue from a personal reading-list file when none is given.
+
+## dre
+
+```bash
+npx skills add 144126/skills@dre
+```
+
+Triggered by `dre`. Deep Research → Markdown Report, with an authenticity bar: every source must be a first-person account from the operator themselves, with real numbers and real decisions — ghostwritten SEO listicles get discarded. Fans out parallel research agents across founder blogs, build-in-public posts, and interview transcripts, then synthesises a tiered, cited report to `~/research/<topic-slug>.md`.
+
+## flyer-prompt-designer
+
+```bash
+npx skills add 144126/skills@flyer-prompt-designer
+```
+
+Interviews the user category by category — genre, hierarchy, typography, color, CTA, format — then builds a single precisely engineered ChatGPT Image 2.0 prompt for a flyer or poster, applying prior deep-research reports on flyer design and image-model prompting.
+
+## logo-prompt-designer
+
+```bash
+npx skills add 144126/skills@logo-prompt-designer
+```
+
+Same approach as `flyer-prompt-designer`, for logos: loads generic logo-design research, invokes `deep-research-prompt-engineer` to research the user's specific industry and competitors, then interviews and builds a single ChatGPT Image 2.0 prompt applying both.
+
+## snxe
+
+```bash
+npx skills add 144126/skills@snxe
+```
+
+Triggered by `snxe`. Exhaustive multi-pass web research through Firecrawl — 8-20+ live (never cached) searches with citation tracking and bounded per-result output, for when a quick lookup isn't enough.
+
+## wydsc
+
+```bash
+npx skills add 144126/skills@wydsc
+```
+
+Triggered by `wydsc`. One-line answers for Waydroid keyboard shortcuts — no explanation, no preamble, just the key combo and what it does.
