@@ -75,8 +75,8 @@ t('t gate blocks the mark until it passes', () => {
 
 t('three failures block the plan and halt it', () => {
 	write({ one: { s: 'first', d: 0, t: 'echo boom; exit 1' } });
-	run('one');
-	run('one');
+	assert.doesNotMatch(run('one').out, /"stuck" skill/);
+	assert.match(run('one').out, /"stuck" skill/);
 	const r = run('one');
 	assert.equal(r.code, 1);
 	assert.match(r.out, /BLOCKED/);

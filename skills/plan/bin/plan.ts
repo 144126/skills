@@ -214,6 +214,9 @@ function mark(leaf: { path: string[]; node: Node }): void {
 			console.error(`\nFAILED (exit ${r.status}) — ${label} is NOT done. attempt ${n}/${MAX_TRIES}\n${clip(r.out)}`);
 			if (n >= MAX_TRIES) block(leaf, `gate failed ${n} times: ${leaf.node.t}`, r.out);
 			console.error(`\nfix it — that fix is part of this step — then run: plan ${bare} ${label}`);
+			// a red gate is where a cheap executor needs to think expensively, and the skill
+			// is what raises effort for the diagnosis
+			if (n > 1) console.error(`don't know why it failed? invoke the "stuck" skill before you touch anything.`);
 			process.exit(1);
 		}
 		console.log('  ok');

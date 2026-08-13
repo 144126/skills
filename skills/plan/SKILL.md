@@ -1,5 +1,6 @@
 ---
 name: plan
+effort: max
 description: Write and run a long multi-session implementation plan that a cold session executes one gated step at a time. A planner session at maximum thinking settles every decision and writes the gates. An executor session at lower thinking implements one step, sees nothing else, and decides nothing the plan already decided. The `plan` CLI runs every check itself, refuses out-of-order marks, halts on staleness, and blocks back to the planner instead of waiting on a human. Use when a job is too big for one session, when work must survive compaction or a model swap, or when the user says "write a plan", "plan this out", "plan.json", "execute the plan", or names a `*.plan.json` file. Not for a task that one or two edits finish.
 ---
 
