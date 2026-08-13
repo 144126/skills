@@ -1,20 +1,29 @@
 ---
 name: plan
 effort: max
-description: Write and run a long multi-session implementation plan that a cold session executes one gated step at a time. A planner session at maximum thinking settles every decision and writes the gates. An executor session at lower thinking implements one step, sees nothing else, and decides nothing the plan already decided. The `plan` CLI runs every check itself, refuses out-of-order marks, halts on staleness, and blocks back to the planner instead of waiting on a human. Use when a job is too big for one session, when work must survive compaction or a model swap, or when the user says "write a plan", "plan this out", "plan.json", "execute the plan", or names a `*.plan.json` file. Not for a task that one or two edits finish.
+description: Write and run a long multi-session implementation plan that a cold session executes one gated step at a time. A planner session at `max` effort settles every decision and writes the gates. An executor session at `low` effort implements one step, sees nothing else, and decides nothing the plan already decided. The `plan` CLI runs every check itself, refuses out-of-order marks, halts on staleness, and blocks back to the planner instead of waiting on a human. Use when a job is too big for one session, when work must survive compaction or a model swap, or when the user says "write a plan", "plan this out", "plan.json", "execute the plan", or names a `*.plan.json` file. Not for a task that one or two edits finish.
 ---
 
 # plan
 
 A step tracker for work that outlives one session. It splits the job three ways:
 
-- The **planner** thinks at full depth, settles every decision, and writes the gates.
-- The **executor** implements one step in a cold session, at lower thinking depth.
+- The **planner** runs at `max` effort, settles every decision, and writes the gates.
+- The **executor** runs at `low` effort and implements one step in a cold session.
 - The **tool** runs every check itself.
 
-The executor is as capable as the planner. It reads code, runs commands, and looks at a
-page. It is not weak. It is **cold** and **narrow**: it never watched the plan get
-written, it sees one step at a time, and it must never grade its own work.
+Same model in both seats. At `low` the executor writes code as well as the planner does.
+It is weaker at four specific things, and the whole design exists to cover them:
+
+| The executor is weak at | What covers it |
+|---|---|
+| Reasoning about trade-offs | The planner settled every one before the step existed |
+| Diagnosing a root cause | The `stuck` skill, which raises effort to `max` for that turn |
+| Novel logic | The planner names the approach; the step only implements it |
+| Few tool calls, so it will not hunt | Exact paths and exact names in every leaf |
+
+It is also **cold** and **narrow**: it never watched the plan get written, it sees one
+step at a time, and it must never grade its own work.
 
 So the plan carries decisions, not code. Write the contract, not the diff.
 
@@ -94,9 +103,9 @@ else.
 
 **Decompose until no leaf holds a plan-level decision.** A step that a competent
 implementer could take two defensible ways is a group. Give it `c` and split it.
-Architecture, file layout, naming that later steps depend on, data shape, and library
-choice all belong to the planner. Choices that die inside one function belong to the
-executor.
+Architecture, file layout, naming that later steps depend on, data shape, library
+choice, and the approach for anything that is not routine all belong to the planner.
+Choices that die inside one function belong to the executor.
 
 ## How much to write
 
@@ -112,7 +121,10 @@ Write what the executor cannot recover. Write nothing else.
 - **The decisions.** Paths, module layout, data shape, key names, the library, and the
   error contract. Anything a later step depends on, and anything a good implementer
   would settle a different, defensible way.
-- **The pointers.** File paths and function names to start from.
+- **The pointers, exact.** The full path and the exact export name, every time. Never
+  "somewhere in `src/lib`", never "the auth handler". At `low` effort the executor makes
+  few tool calls and goes straight to work, so anything it has to hunt for is a step
+  that drifts or fails.
 - **The traps.** A gotcha you found when you read the code, and the reason for a choice
   that looks wrong from inside one step.
 - **The fence.** Any tempting next thing that belongs to a later step.
@@ -124,8 +136,12 @@ Write what the executor cannot recover. Write nothing else.
 - **Rediscoverable facts.** The executor reads the repo faster than you can quote it.
 - **A defence of the choice** against alternatives the executor never considers.
 
-A leaf runs 40 to 120 words. More than that means the leaf holds two steps, or it holds
+A leaf runs 60 to 150 words. More than that means the leaf holds two steps, or it holds
 an implementation. Split it, or cut it.
+
+**A leaf with more than one part gets a numbered list, not a paragraph.** At `low`
+effort the executor follows an explicit checklist well and drops items out of prose.
+Three short numbered lines beat one dense sentence that carries the same three facts.
 
 Quote code verbatim only when the exact bytes matter and the executor cannot derive
 them: a magic constant, a credential name, a regular expression, a SQL migration, an
@@ -209,6 +225,9 @@ own. Every leaf starts at `"d": 0`. Finish with `plan <name> -l` and fix every w
   the planner's.
 - **Settle the step completely.** A failed gate, a broken import, a red neighbouring
   test, or a surprise in the code all belong to this step. Fix it now.
+- **Never guess at a failure you do not understand.** Invoke the `stuck` skill. It runs
+  the diagnosis at `max` effort for that turn, then hands the work back. Guesswork at
+  `low` costs more than the escalation does.
 - **Look at what you built** when the step touches a page, then still pass the machine
   gate.
 - Run `plan <name> --note "<one line>"` when you learn a fact that a later step needs: a
@@ -268,3 +287,8 @@ Every rule here closes a hole that was found in practice.
 - One session finds a fact and the next session repeats the mistake → `--note`.
 - A plan that quotes the implementation goes stale in a week and buries the decision it
   exists to carry → write the contract, not the diff.
+- A cheap executor is weak at exactly one thing the plan cannot pre-solve, because the
+  failure does not exist until the step runs → the `stuck` skill buys `max` effort for
+  one turn.
+- A vague pointer costs a cheap executor more than a long paragraph does, because it
+  will not spend the tool calls to hunt → exact paths, exact names.
