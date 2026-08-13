@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Step tracker for long, multi-session plans. Steps nest to any depth; only leaves are executed.
-// Written by a strong planner, executed unattended by weak models — so every check is a shell
-// command the tool runs itself, and nothing is ever taken on the executor's word.
+// A planner session settles every decision; a cold executor session runs one step and grades
+// nothing — so every check is a shell command the tool runs itself.
 //
 //   plan <plan>                      print the next undone leaf step
 //   plan <plan> <step>               mark it done (its gate must pass), then print the next
 //   plan <plan> <step> --block "why" halt and hand the step back to the planner
+//   plan <plan> --note "learnt this" record a fact that prints with every later step
 //   plan <plan> -l                   validate the file and print the whole tree
 //
 // Prints `0` when every step is done, then moves the file to wip-plans/.
@@ -21,7 +22,7 @@
 //
 // Node 22.6+ strips the types natively, so this runs with plain `node plan.ts`.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync, appendFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync, appendFileSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resolve, join, sep } from 'node:path';
 
@@ -36,12 +37,19 @@ const die = (msg: string): never => {
 };
 
 const [, , plan_name, ...rest] = process.argv;
-if (!plan_name) die('usage: plan <plan_name> [step_name] [--block "why"] | plan <plan_name> -l');
+if (!plan_name) die('usage: plan <plan_name> [step_name] [--block "why"] [--note "learnt"] | plan <plan_name> -l');
 
 const list_mode = rest.includes('-l') || rest.includes('--list');
 const block_at = rest.indexOf('--block');
 const block_why = block_at === -1 ? null : (rest[block_at + 1] ?? 'no reason given');
-const args = block_at === -1 ? rest : [...rest.slice(0, block_at), ...rest.slice(block_at + 2)];
+const note_at = rest.indexOf('--note');
+const note_text = note_at === -1 ? null : (rest[note_at + 1] ?? '');
+// a flag and its value are one unit; whatever is left over is the step name
+const args: string[] = [];
+for (let i = 0; i < rest.length; i++) {
+	if (rest[i] === '--block' || rest[i] === '--note') i++;
+	else args.push(rest[i]);
+}
 const step_arg = args.find((a) => !a.startsWith('-'));
 
 // accept both `foo` and `foo.plan.json`; always resolves under plan/, no escaping via `/` or `..`
@@ -52,6 +60,8 @@ if (!file.startsWith(plan_dir)) die(`refusing to escape plan/: ${plan_name}`);
 const blocked_file = resolve(plan_dir, `${bare}.blocked.md`);
 const tries_file = resolve(plan_dir, `.${bare}.tries.json`);
 const log_file = resolve(plan_dir, `${bare}.log`);
+const notes_file = resolve(plan_dir, `${bare}.notes.md`);
+const tests_dir = resolve(plan_dir, 'tests');
 
 // already archived — an unattended loop keeps getting `0` instead of a crash
 if (!existsSync(file) && existsSync(resolve('wip-plans', `${bare}.plan.json`))) {
@@ -91,6 +101,14 @@ let next = todo === -1 ? null : flat[todo];
 
 if (list_mode) {
 	list();
+	process.exit(0);
+}
+
+// one cold session tells the next what it found. recording is always allowed, even when blocked.
+if (note_text !== null) {
+	if (!note_text.trim()) die('--note needs text: plan ' + bare + ' --note "what you learnt"');
+	appendFileSync(notes_file, `- ${new Date().toISOString().slice(0, 10)} ${note_text.trim()}\n`);
+	console.log(`noted → ${notes_file}`);
 	process.exit(0);
 }
 
@@ -252,6 +270,8 @@ function normalize(tree: Plan): Plan {
 function archive(): void {
 	mkdirSync(resolve('wip-plans'), { recursive: true });
 	renameSync(file, join(resolve('wip-plans'), `${bare}.plan.json`));
+	// notes go with it, or a later plan of the same name inherits them
+	if (existsSync(notes_file)) renameSync(notes_file, join(resolve('wip-plans'), `${bare}.notes.md`));
 	if (existsSync(tries_file)) unlinkSync(tries_file);
 }
 
@@ -318,7 +338,14 @@ function show(leaf: { path: string[]; node: Node }, i: number): void {
 	const label = leaf.path.join('.');
 	console.log(`step ${i + 1}/${flat.length}  ${label}`);
 	for (let d = 1; d < leaf.path.length; d++) console.log(`  ${'  '.repeat(d - 1)}^ ${at(leaf.path.slice(0, d)).s}`);
+
+	// the executor never sees the rest of the plan, so it needs the shape of what already exists
+	const done_ids = flat.filter((l) => l.node.d === 1).map((l) => l.path.join('.'));
+	if (done_ids.length) console.log(`\nalready built: ${done_ids.join(', ')}`);
+
 	if (preamble) console.log(`\n--- always applies ---\n${preamble}\n----------------------`);
+	const notes = existsSync(notes_file) ? readFileSync(notes_file, 'utf8').trim() : '';
+	if (notes) console.log(`\n--- learnt while running this plan ---\n${notes}\n--------------------------------------`);
 	console.log(`\n${leaf.node.s}\n`);
 
 	if (leaf.node.t && leaf.node.t !== '-') console.log(`t [${label}]: ${leaf.node.t}`);
@@ -328,6 +355,7 @@ function show(leaf: { path: string[]; node: Node }, i: number): void {
 
 	console.log(`done:    plan ${bare} ${label}`);
 	console.log(`stuck:   plan ${bare} ${label} --block "what you hit"`);
+	console.log(`learnt:  plan ${bare} --note "fact the next step needs"`);
 }
 
 function list(): void {
@@ -345,9 +373,24 @@ function list(): void {
 	const no_v = flat.filter((l) => l.node.d !== 1 && !l.node.v).length;
 	const waived = flat.filter((l) => l.node.t === '-').length;
 	console.log(`\n${done}/${flat.length} leaf steps done, max depth ${Math.max(...flat.map((l) => l.path.length))}`);
-	if (!preamble) console.log('warn: no top-level "_" preamble — every step is executed by a cold model that sees nothing else');
-	if (no_v) console.log(`warn: ${no_v} undone leaf steps have no "v" — nothing detects that the repo moved under them`);
+	if (!preamble) console.log('warn: no top-level "_" preamble — every step is run by a cold session that sees nothing else');
+	// a staged test nobody copies never runs: the gate stays green and the step proved nothing
+	const orphans = staged(tests_dir, tests_dir).filter((d) => !flat.some((l) => l.node.s.includes(d)));
+	if (orphans.length) console.log(`warn: no step copies ${orphans.length} staged test(s): ${orphans.join(', ')}`);
 	if (waived) console.log(`warn: ${waived} leaf steps waive their gate with "t": "-"`);
+	if (no_v) console.log(`note: ${no_v} undone leaf steps have no "v" — fine unless the step assumes code that already exists`);
+}
+
+// every plan/tests/**/*.txt, as the destination path each one is meant to be copied to
+function staged(dir: string, base: string): string[] {
+	if (!existsSync(dir)) return [];
+	const out: string[] = [];
+	for (const e of readdirSync(dir, { withFileTypes: true })) {
+		const p = join(dir, e.name);
+		if (e.isDirectory()) out.push(...staged(p, base));
+		else if (e.name.endsWith('.txt')) out.push(p.slice(base.length + 1).replace(/\.txt$/, ''));
+	}
+	return out;
 }
 
 // ── validation ───────────────────────────────────────────────────────────────

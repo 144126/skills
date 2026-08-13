@@ -169,4 +169,39 @@ t('list shows the tree and warns on missing v', () => {
 	assert.match(o, /no top-level "_" preamble/);
 });
 
+t('list flags a staged test no step ever copies', () => {
+	write({ a: { s: 'cp plan/tests/src/lib/used.test.ts.txt src/lib/used.test.ts', d: 0, t: 'true' } });
+	mkdirSync(join(root, 'plan', 'tests', 'src', 'lib'), { recursive: true });
+	writeFileSync(join(root, 'plan', 'tests', 'src', 'lib', 'used.test.ts.txt'), 'x');
+	assert.doesNotMatch(run('-l').out, /staged test/);
+	writeFileSync(join(root, 'plan', 'tests', 'src', 'lib', 'orphan.test.ts.txt'), 'x');
+	assert.match(run('-l').out, /no step copies 1 staged test\(s\): src\/lib\/orphan\.test\.ts/);
+});
+
+t('--note records once and prints with every later step', () => {
+	write({ one: { s: 'first', d: 0, t: 'true' }, two: { s: 'second', d: 0, t: 'true' } });
+	assert.doesNotMatch(run().out, /learnt while running/);
+	assert.equal(run('--note', 'the api returns a bare array').code, 0);
+	const o = run().out;
+	assert.match(o, /learnt while running this plan/);
+	assert.match(o, /the api returns a bare array/);
+	// a note is not a step name
+	assert.match(o, /step 1\/2 {2}one/);
+	assert.equal(read().one.d, 0);
+	assert.equal(run('--note', '  ').code, 1);
+	// it survives into the next step, and the plan carries it to the archive
+	run('one');
+	assert.match(run().out, /the api returns a bare array/);
+	run('two');
+	assert.ok(existsSync(join(root, 'wip-plans', 'p.notes.md')));
+	assert.ok(!existsSync(join(root, 'plan', 'p.notes.md')));
+});
+
+t('every step prints what is already built', () => {
+	write({ one: { s: 'first', d: 0, t: 'true' }, two: { s: 'second', d: 0, t: 'true' }, three: { s: 'third', d: 0, t: 'true' } });
+	assert.doesNotMatch(run().out, /already built/);
+	run('one');
+	assert.match(run('two').out, /already built: one, two/);
+});
+
 console.log('\nall green');
