@@ -146,6 +146,14 @@ npx skills add 144126/skills@premium-web-design
 
 Build sites with award-tier craft — concept-driven direction, editorial typography, choreographed motion, custom scroll feel. Use it when a page has to feel premium, expensive, cinematic, or simply not like a template, and when an existing design looks generic, default, or AI-generated and needs lifting to studio quality.
 
+## ghost-edit
+
+```bash
+npx skills add 144126/skills@ghost-edit
+```
+
+Edit a document in small bits without putting the agent's own prose in the file. The agent drafts one bit in chat, you reword it, and only your reword is written (grammar and typos fixed).
+
 ## design-ideation-engine
 
 ```bash
