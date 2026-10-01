@@ -202,6 +202,22 @@ pnpm dlx skills add 144126/skills@design-ideation-engine
 
 The thinking phase, before any code: a seven-step creative process for generating award-level design concepts, drawn from Glaser, Scher, Carson and Sagmeister interviews, Awwwards case studies and IDEO methodology. Acts as a creative director rather than an implementer — pair it with premium-web-design, which builds what it decides.
 
+## research
+
+```bash
+npx skills add 144126/skills@research
+```
+
+Search-loop web research that goes all the way: search 9 hits, fetch the best pages to files, update succinct conclusions in `~/search/<slug>.md`, and loop on the gaps. Trigger `infinite` and it does not stop until told.
+
+## root
+
+```bash
+npx skills add 144126/skills@root
+```
+
+Peel any question to its indivisible first-principles reason. Names the thing, asks "why that?" down through each layer, checks every empirical claim against live pages, and stops only when the next "why" changes the subject.
+
 ---
 
 ## Configuration
