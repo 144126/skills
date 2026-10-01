@@ -6,6 +6,16 @@ Agent skills, installable with the [skills](https://skills.sh) CLI.
 pnpm dlx skills add 144126/skills
 ```
 
+## web-build
+
+Build websites with SvelteKit, TypeScript, pnpm, and Cloudflare. Add Qdrant when a database is needed. Personal preference files and companion skills are optional.
+
+```bash
+pnpm dlx skills add 144126/skills --skill web-build
+```
+
+[View on skills.sh](https://skills.sh/144126/skills/web-build).
+
 ## creative skills
 
 Research reports are included in each skill that reads them. Color guidance is in `graphic-design` and the motion, color, and shape report. Sound effects use `sound-design`, `sfx-gen`, and `sfx-pack`.
