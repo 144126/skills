@@ -7,9 +7,11 @@ description: Use when entering, picking, reviewing, or closing any freelancer.co
 
 Research first: contests [references/win-freelancer-contests-first-principles.md](references/win-freelancer-contests-first-principles.md).
 
-Always get contest and project details and submit contest entries and project bids through the Freelancer API. Never use the website for these actions. If the API fails, fix the API request or report the error; do not fall back to the website.
+Read contest and project details through the Freelancer API. Never scrape the website for them. If the API fails, fix the request or report the error; do not fall back to the website.
 
-`<SKILL_DIR>` is this installed skill folder. Requires Bash, curl, and Python 3.
+Post everything only through the website with agent-browser, logged in to your account: entries, bids, questions, messages, profile edits. Never post through the API.
+
+Requires curl and agent-browser.
 
 `FREELANCER_TOKEN` is set in the environment. Check that it is non-empty before API requests; never print its value.
 
@@ -43,17 +45,29 @@ Enter only when all of these hold:
 
 ## Enter (contests)
 
-- Submit every entry via the Freelancer API: `bash <SKILL_DIR>/scripts/fl-submit <contest_id> <title> <desc|@file> <image>...`. Title ≤50 chars, desc ≤1000 chars. Script handles rate-limit retries. One entry per image, so pack variations as separate files.
+- Post every entry with agent-browser (see Post an entry). Title ≤50 chars, desc ≤1000 chars. Image files only: PNG, JPG or GIF.
 - Simple design, category-typical, exactly one twist. Fits the client's existing look if they have one.
 - Enter early and enter all allowed slots. One strong concept with variation, not three unrelated shots.
 - Highlight the lead entry. Withdraw and resubmit to stay near the top of the list.
 - No AI where the brief bans it. Declare AI where the platform requires it. Original work only.
 
+## Post an entry (agent-browser)
+
+1. `agent-browser set viewport 1440 1000`. In a short window the chat widget covers Submit.
+2. `agent-browser open https://www.freelancer.com/<seo_url_new>`, click button "Submit entry". URL ends `/submit-entry`.
+3. `agent-browser upload @<"Choose Files" ref> <absolute path>`. Done when image "Remove File" shows; the input still says "No file chosen".
+4. AI declaration: click the true label. "AI assisted" = "I led the creative process, using AI tools". "AI generated" = "AI produced this entry from my prompts, with little or no manual work". Wrong labels may be disqualified. Brief bans AI: ask the account owner.
+5. Licensed content: keep "This entry is entirely my own" unless stock items are used.
+6. `fill` title and description, then in each field `press End`, `press Space`, `press Backspace`. Without a real key press Angular drops the text (counter stays "1000 characters left").
+7. Sealed is free while the form shows seal upgrades left: click the "Sealed Free" row, not its checkbox. Highlight costs $0.50: ask the account owner. Total must read $0.00.
+8. Click the bottom "Submit entry" (the top one only opens the form). Lands on `/entries`.
+9. Check: `GET https://www.freelancer.com/api/contests/0.1/entries/?contests[]=<id>&limit=200&file_details=true`, your `owner_id` → number, status, sealed, title, file. The API shows line breaks as literal `\n`; the page shows real line breaks.
+
 ## Enter (projects)
 
 - First sentence: unique fact from the post + a diagnosis. Then one similar outcome with a number. Then one diagnostic question the brief did not already answer. No "I am a skilled X."
 - Amount in the project's currency. Period in days.
-- `POST https://www.freelancer.com/api/projects/0.1/bids/` JSON: `project_id`, `bidder_id`, `amount`, `period`, `milestone_percentage`, `description`.
+- Post the bid in the website form with agent-browser.
 - Bid early. Sponsor only if you would not land on page one and you already convert in that exact category. Do not highlight page two.
 
 ## Engage
