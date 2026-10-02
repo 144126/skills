@@ -42,7 +42,7 @@ Replace `creative` with any name below. Give several names to install them toget
 | [seam-craft](skills/seam-craft/SKILL.md) | Render clean joins between scenes. |
 | [captions-overlay](skills/captions-overlay/SKILL.md) | Place and time captions. |
 | [remotion-to-hyperframes](skills/remotion-to-hyperframes/SKILL.md) | Convert Remotion source into HyperFrames. |
-| [win-freelancer-contests](skills/win-freelancer-contests/SKILL.md) | Choose and enter design contests. |
+| [win-freelancer](skills/win-freelancer/SKILL.md) | Choose and enter contests and project bids. |
 
 The HyperFrames workflows also need its companion skills from [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes). Install those through HyperFrames setup. `sfx-gen` needs `ELEVENLABS_API_KEY`; contest submission needs `FREELANCER_TOKEN`.
 

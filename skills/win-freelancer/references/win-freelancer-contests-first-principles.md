@@ -2,9 +2,9 @@
 
 Question: how do you win every freelancer.com contest, every time? Peeled to first principles, assuming that is completely and perfectly possible no matter how impractical it sounds.
 
-Status: done (33 search turns, 34 sources). The skill it feeds: [win-freelancer-contests](https://github.com/144126/skills/blob/master/skills/win-freelancer-contests/SKILL.md). Same floor as [creativity-first-principles.md](https://github.com/144126/skills/blob/master/skills/creative/references/creativity-first-principles.md).
+Status: done (33 search turns, 34 sources). The skill it feeds: [win-freelancer](https://github.com/144126/skills/blob/master/skills/win-freelancer/SKILL.md). Same floor as [creativity-first-principles.md](https://github.com/144126/skills/blob/master/skills/creative/references/creativity-first-principles.md).
 
-The rule I follow: [win-freelancer-contests](https://github.com/144126/skills/blob/master/skills/win-freelancer-contests/SKILL.md).
+The rule I follow: [win-freelancer](https://github.com/144126/skills/blob/master/skills/win-freelancer/SKILL.md).
 
 ## Floor
 
