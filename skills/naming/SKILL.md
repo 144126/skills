@@ -10,7 +10,7 @@ Research this skill came from — read it first: [references/naming-first-princi
 A name is judged before anyone knows the app, then it is the cue to find the app again. Easy to say reads as familiar, so safe and good. But easy to like is not easy to remember. Pick the point on that line the app needs, and make the sounds and meaning fit the promise.
 
 1. Frame: write the promise in one line. Write the feel: small, fast, sharp, or big, slow, solid. Everyday and trusted, or special and thrilling?
-2. Make 30 or more names, each from a different lever:
+2. Ban the 3 names that come first and anything close to them. Then make 30 or more, each from a different lever, each with a rough probability. Keep the tails (under 10%):
    - a common real word from a far domain
    - a word for the one promise the app will always keep
    - rhyme, alliteration, a repeated vowel or syllable
