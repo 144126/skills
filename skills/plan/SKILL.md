@@ -211,6 +211,13 @@ the module the plan creates. A staged test that no step copies is dead weight, a
 Order leaves by dependency, foundations first. Each leaf leaves the repo green on its
 own. Every leaf starts at `"d": 0`. Finish with `plan <name> -l` and fix every warning.
 
+**At `max` effort, do step 1 too.** The user often asks for a plan and its first step
+together, then drops to a lower effort for the rest. So once `plan <name> -l` is clean,
+run `plan <name>` and do the first leaf the way an executor would: build it, mark it,
+commit it. When the dependencies allow, put the leaf that needs the most judgement
+first, because that is the one that runs at `max`. Below `max`, stop after the plan
+unless asked.
+
 ## Executing a plan
 
 - Run `plan <name>`. Do what it prints, nothing else, and no "while I am here".
