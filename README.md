@@ -29,6 +29,7 @@ Replace `creative` with any name below. Give several names to install them toget
 | skill | use |
 |---|---|
 | [creative](skills/creative/SKILL.md) | Generate and choose fresh ideas. |
+| [naming](skills/naming/SKILL.md) | Name apps, products, and brands. |
 | [sound-design](skills/sound-design/SKILL.md) | Choose, place, and mix sound. |
 | [sfx-gen](skills/sfx-gen/SKILL.md) | Generate sound effects with ElevenLabs. |
 | [sfx-pack](skills/sfx-pack/SKILL.md) | Build sound effects with SoX and FFmpeg. |
