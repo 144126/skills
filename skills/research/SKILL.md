@@ -43,3 +43,5 @@ Rules:
 - Absence: `> <claim> — <url> — searched for "<exact string>": 0 hits`. Name each string you searched.
 - Drop any sentence you cannot pin. No unsourced paraphrase, no third-party restatement of a primary page.
 - Keep the primary URL in the cite, not a local `/tmp` fetch.
+- Publisher page bot-blocked: read the abstract at `https://colab.ws/articles/<doi, / as %2F>` and cite that URL.
+- Never cite academia.edu "AI" takeaways or FAQs. They are machine-written, not the paper.
