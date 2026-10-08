@@ -7,7 +7,7 @@ description: Build Ed's websites and webapps with SvelteKit, TypeScript, pnpm, a
 
 - Build only what the request needs. Keep an existing project's stack unless asked to change it.
 - Before product, naming, or design choices, read `~/ed.md` if present. Only on Ed's personal machine, read `~/me.md` if present for project names, paths, lowercase UI text, Svelte runes, Tailwind, fonts, and auth defaults. Else use the user's or team's conventions.
-- Use SvelteKit, TypeScript, and pnpm. Start new projects with `pnpm dlx sv create <path> --template minimal --types ts --install pnpm`. Add prettier, eslint, vitest, playwright, tailwindcss, and the Cloudflare adapter through `pnpm dlx sv add`.
+- Use SvelteKit, TypeScript, and pnpm. Start new projects with `pnpm dlx sv create <path> --template minimal --types ts --install pnpm`. Add prettier, eslint, playwright, tailwindcss, and the Cloudflare adapter through `pnpm dlx sv add`.
 - Use `@sveltejs/adapter-cloudflare` for Cloudflare hosting. Follow the current [SvelteKit Cloudflare setup](https://svelte.dev/docs/kit/adapter-cloudflare); use the existing Workers or Pages target when present.
 - Add Qdrant only when the app needs a database. Keep Qdrant calls and credentials on the server. Use an existing instance when available; follow the current [Qdrant docs](https://qdrant.tech/documentation/). Add search by meaning only when the request needs it.
 - Keep database access in `src/lib/server/`. Keep each business rule in one owning module; routes call it and components display its results. Validate input and check access on the server.
