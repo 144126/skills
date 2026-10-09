@@ -44,4 +44,6 @@ Rules:
 - Drop any sentence you cannot pin. No unsourced paraphrase, no third-party restatement of a primary page.
 - Keep the primary URL in the cite, not a local `/tmp` fetch.
 - Publisher page bot-blocked: read the abstract at `https://colab.ws/articles/<doi, / as %2F>` and cite that URL.
+- colab.ws/PubMed/ScienceDirect also blocked: `curl -sG https://www.ebi.ac.uk/europepmc/webservices/rest/search --data-urlencode "query=EXT_ID:<pmid>" -d resultType=core -d format=json` (cite `europepmc.org/article/MED/<pmid>`), or OpenAlex `api.openalex.org/works/doi:<doi>` → `abstract_inverted_index`.
+- Replication check: `https://forrt.org/flora-replication-atlas/doi/<doi>/`.
 - Never cite academia.edu "AI" takeaways or FAQs. They are machine-written, not the paper.
