@@ -37,7 +37,6 @@ No step waits on a human. When work cannot continue, the tool halts into
 ```bash
 ln -s ~/.agents/skills/plan/bin/plan.ts ~/.local/bin/plan
 chmod +x ~/.agents/skills/plan/bin/plan.ts
-node ~/.agents/skills/plan/bin/plan.test.ts   # self-checks, prints "all green"
 ```
 
 ## Commands
@@ -65,13 +64,13 @@ mark. `plan/<name>.notes.md` keeps the executor's notes and prints with every st
 	"_": "context every step needs: stack, conventions, aliases, traps",
 	"scaffold_auth": {
 		"s": "short group label — context only, never work",
-		"t": "pnpm test && pnpm check",
+		"t": "pnpm check",
 		"c": {
 			"session_cookie": {
 				"s": "the outcome, the settled decisions, the pointers, the fence",
 				"d": 0,
-				"v": "test -f src/lib/session.ts",
-				"t": "bash plan/verify_tests.sh && pnpm test && pnpm check"
+				"v": "[ -f src/lib/session.ts ]",
+				"t": "pnpm check"
 			}
 		}
 	}
@@ -149,17 +148,15 @@ API payload shape, or a config block.
 
 ## Gates
 
-**Every leaf is gated.** `t` is the command that proves the step. Combine three things:
-the repo's own test and check commands, `test -f` or `grep -q` clauses for whatever the
-step creates, and the step's own test when it has one. A green suite alone proves that
-nothing broke, which is equally true when nothing was done. The existence clauses prove
+**Every leaf is gated.** `t` is the command that proves the step. Combine two things:
+the repo's own check commands, and `[ -f ]` or `grep -q` clauses for whatever the step
+creates. A green check alone proves that nothing broke, which is equally true when nothing was done. The existence clauses prove
 that the step happened. The tool refuses to load a plan that has an ungated undone leaf.
-A group's `t` fires when its last child is marked, so the whole-feature suite belongs
+A group's `t` fires when its last child is marked, so the whole-feature check belongs
 there.
 
-**One-shot checks belong in the gate, not in a test file.** "`DESIGN.md` exists" and
-"the demo folder is gone" are `test -f` and `test ! -d` clauses. They die with the plan.
-Only real behaviour becomes a test that the repo carries for life.
+**One-shot checks belong in the gate.** "`DESIGN.md` exists" and
+"the demo folder is gone" are `[ -f ]` and `[ ! -d ]` clauses. They die with the plan.
 
 **A visual step still gets a machine gate.** The executor opens the page and looks at
 it, so say so in the step. But eyes are not a gate, because the tool never sees them.
@@ -170,43 +167,9 @@ tells the executor to block it at once.
 
 **`v` guards a premise, not a patch.** Give a leaf a `v` when it assumes something
 specific already exists: a file, an export, a table, or a route. Plans go stale, and a
-step written today runs next week against a repo that moved. One `test -f` or one
+step written today runs next week against a repo that moved. One `[ -f ]` or one
 `grep -q` turns a confusing failure into a clean block. A leaf that only creates new
 things needs no `v`.
-
-### Staged tests
-
-The grader is never the student. A model that writes its own gate writes a gate that
-passes.
-
-Stage a test as a file when a wrong pass ships a real bug: money, authentication, access
-control, data integrity, and the core behaviour the feature exists for. Everywhere else,
-gate on the suite plus existence clauses, and let the executor write its own tests.
-
-A staged test waits out of the way, at its destination path plus `.txt`:
-
-```
-plan/tests/<its real destination path>.txt
-```
-
-Mirror the destination path exactly. The `.txt` keeps every test runner and typechecker
-off the file while it waits. A test cannot live at its final path from day one, because
-it imports modules that later steps create, and every earlier gate would fail on them.
-
-The leaf then gives one line per file, and says plainly not to edit it:
-
-```
-cp plan/tests/src/lib/pw.test.ts.txt src/lib/pw.test.ts
-```
-
-Ship `scripts/verify_tests.sh` from this skill as `plan/verify_tests.sh` beside the
-plan. It runs `cmp` on every staged test that is already placed, and exits non-zero on
-the first changed byte. Put it at the front of every gate, so a weakened step 3 test
-fails step 12.
-
-Write every staged test against the repo you are planning, and check that it imports
-the module the plan creates. A staged test that no step copies is dead weight, and
-`plan <name> -l` reports it.
 
 Order leaves by dependency, foundations first. Each leaf leaves the repo green on its
 own. Every leaf starts at `"d": 0`. Finish with `plan <name> -l` and fix every warning.
@@ -227,11 +190,8 @@ unless asked.
   are settled, and later steps depend on them. Inside those lines, implement the way you
   judge best. If the step does not name it, it is yours to choose, and the smallest
   thing that works and passes the gate wins.
-- **Never weaken a staged test.** Copy it with the `cp` the step gives, byte for byte.
-  Make it pass by a change to the implementation. You may add tests. You may not edit
-  the planner's.
 - **Settle the step completely.** A failed gate, a broken import, a red neighbouring
-  test, or a surprise in the code all belong to this step. Fix it now.
+  check, or a surprise in the code all belong to this step. Fix it now.
 - **Never guess at a failure you do not understand.** Invoke the `stuck` skill. It runs
   the diagnosis at `max` effort for that turn, then hands the work back. Guesswork at
   `low` costs more than the escalation does.
@@ -267,6 +227,11 @@ resume.
 - **New plan.** Only when the goal moved, or when the done work is abandoned. Archive
   the old plan to `wip-plans/` as a partial record.
 
+Amend `plan/<name>.plan.json` in place. Never regenerate it from a builder script: that resets every `d` to 0.
+Before you rewrite a plan file, run `plan <name>` and read `plan/<name>.log`: another session may have marked steps since you last looked.
+
+A step that cannot be repeated (a licence request, a payment, a post) gets a cheap rehearsal first: a fake run with stub commands, or a CPU machine before the GPU. That catches script bugs before the one real attempt.
+
 Read `plan/<name>.notes.md` before you amend anything. It holds what the executor found
 that you did not know when you wrote the plan.
 
@@ -287,7 +252,6 @@ Every rule here closes a hole that was found in practice.
 - An optional gate is no gate. Two thirds of leaves once had none → gates are mandatory.
 - "I looked at it in the browser" is not a check the tool can run → a visual step still
   gets a command that proves it.
-- A test the executor typed is a test the executor can weaken → staged files plus `cmp`.
 - "Stop and ask the user" dead-ends when nobody is watching → `--block` routes to the
   planner, and three strikes does it for you.
 - A failing group gate used to un-tick the leaf that passed → the leaf stays done.

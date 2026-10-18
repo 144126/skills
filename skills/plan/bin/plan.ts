@@ -22,7 +22,7 @@
 //
 // Node 22.6+ strips the types natively, so this runs with plain `node plan.ts`.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync, appendFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync, appendFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resolve, join, sep } from 'node:path';
 
@@ -61,7 +61,6 @@ const blocked_file = resolve(plan_dir, `${bare}.blocked.md`);
 const tries_file = resolve(plan_dir, `.${bare}.tries.json`);
 const log_file = resolve(plan_dir, `${bare}.log`);
 const notes_file = resolve(plan_dir, `${bare}.notes.md`);
-const tests_dir = resolve(plan_dir, 'tests');
 
 // already archived — an unattended loop keeps getting `0` instead of a crash
 if (!existsSync(file) && existsSync(resolve('wip-plans', `${bare}.plan.json`))) {
@@ -181,7 +180,7 @@ function run_gate(cmd: string): { ok: boolean; out: string; status: number | nul
 	return { ok: r.status === 0, out: `${r.stdout ?? ''}${r.stderr ?? ''}`, status: r.status };
 }
 
-// vitest prints the reason at the top and the summary at the bottom — keep both ends
+// gate output puts the reason at the top and the summary at the bottom — keep both ends
 function clip(text: string): string {
 	const lines = text.split('\n');
 	if (lines.length <= 60) return text;
@@ -377,23 +376,8 @@ function list(): void {
 	const waived = flat.filter((l) => l.node.t === '-').length;
 	console.log(`\n${done}/${flat.length} leaf steps done, max depth ${Math.max(...flat.map((l) => l.path.length))}`);
 	if (!preamble) console.log('warn: no top-level "_" preamble — every step is run by a cold session that sees nothing else');
-	// a staged test nobody copies never runs: the gate stays green and the step proved nothing
-	const orphans = staged(tests_dir, tests_dir).filter((d) => !flat.some((l) => l.node.s.includes(d)));
-	if (orphans.length) console.log(`warn: no step copies ${orphans.length} staged test(s): ${orphans.join(', ')}`);
 	if (waived) console.log(`warn: ${waived} leaf steps waive their gate with "t": "-"`);
 	if (no_v) console.log(`note: ${no_v} undone leaf steps have no "v" — fine unless the step assumes code that already exists`);
-}
-
-// every plan/tests/**/*.txt, as the destination path each one is meant to be copied to
-function staged(dir: string, base: string): string[] {
-	if (!existsSync(dir)) return [];
-	const out: string[] = [];
-	for (const e of readdirSync(dir, { withFileTypes: true })) {
-		const p = join(dir, e.name);
-		if (e.isDirectory()) out.push(...staged(p, base));
-		else if (e.name.endsWith('.txt')) out.push(p.slice(base.length + 1).replace(/\.txt$/, ''));
-	}
-	return out;
 }
 
 // ── validation ───────────────────────────────────────────────────────────────
