@@ -36,4 +36,7 @@ Meaning
 - The shot before colors the next one (Kuleshov). Match cuts: same framing or same motion.
 - Break a rule (180 degrees, continuity) only on purpose: it costs clarity, not liking.
 
+Sound design
+- Sound effects for edits come only from https://reactbits.dev/tools/sound-lab. No other source.
+
 Check: watch at full speed with sound. Every cut you notice by accident is a fix.
